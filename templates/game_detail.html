@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Store</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='dist/output.css') }}"
+    />
+  </head>
+
+  <body class="bg-gray-800 rounded-md">
+    <div class="container mx-auto mt-8 p-6 bg-gray-800 rounded-md">
+      <h2 class="text-3xl font-semibold mb-6 text-white">Game Details</h2>
+
+      <div class="bg-gray-700 p-6 rounded-md">
+        <h3 class="text-xl font-semibold mb-2 text-white">{{ game_det[1] }}</h3>
+        <p class="text-gray-300 mb-2">
+          <strong>Rating:</strong> {{ game_det[2] }}/5
+        </p>
+        <p class="text-gray-300 mb-4">{{ game_det[3] }}</p>
+        <p class="text-gray-300"><strong>Price:</strong> ${{ '{:.2f}'.format(game_det[4]) }}</p>
+
+        {% if session.get('logged_in') %}
+        <li><a class="text-white" href="{{ url_for('confirm_transaction', game_id=game_det[0])}}">Buy</a></li>
+        {% else %}
+        <li><a class="text-white" href="login">Buy</a></li>
+        {% endif %}
+      </div>
+
+      <div class="bg-gray-700 p-6 rounded-md">
+        <div>
+            <h2 class="text-white">Comments</h2>
+            {% if comments %}
+                <ul>
+                    {% for comment in comments %}
+                        <li>
+                            <strong>{{ comment[2] }}</strong>:
+                            {{ comment[1] }}
+                            <span class="timestamp">{{ comment[3] }}</span>
+                            {% if session.get('logged_in') and comment[4] == session.get('id') %}
+                                <form method="post">
+                                    <input type="hidden" name="edit_comment" value="{{ comment[0] }}">
+                                    <input type="text" name="new_content" placeholder="Enter new content">
+                                    <button type="submit">Edit</button>
+                                </form>
+                                <form method="post">
+                                    <input type="hidden" name="delete_comment" value="{{ comment[0] }}">
+                                    <button type="submit">Delete</button>
+                                </form>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-white">No comments available for this game.</p>
+            {% endif %}
+            {% if session.get('logged_in') %}
+                <li><a class="text-white" href="{{ url_for('add_comment') }}">Add comment</a></li>
+            {% else %}
+                <li><a class="text-white" href="login">Add comment</a></li>
+            {% endif %}
+        </div>
+    </div>
+    </div>
+    
+
+  </body>
+</html>

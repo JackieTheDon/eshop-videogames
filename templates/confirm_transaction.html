@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Purchase</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dist/output.css') }}">
+</head>
+<body>
+    <h1>Confirm Purchase</h1>
+    <div class="game-details">
+        <h2>Game Information</h2>
+        <p><strong>Title:</strong> {{ details[1] }}</p>
+        <p><strong>Price:</strong> ${{ details[4] }}</p>
+        <form action="{{ url_for('confirm_transaction', game_id=details[0]) }}" method="post">
+            <input type="submit" value="Confirm Purchase">
+            <a href="{{ url_for('game_detail', game_id=details[0]) }}" class="cancel-button">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

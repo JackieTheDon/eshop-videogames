@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet</title>
+</head>
+<body>
+    <h1>Wallet</h1>
+    <p>Your current balance: ${{ '{:.2f}'.format(current_money) }}</p>
+    <form action="{{ url_for('add_money') }}" method="POST">
+        <label for="amount">Enter amount to add:</label>
+        <input type="number" id="amount" name="amount" step="0.01" min="0.01" required>
+        <button type="submit">Add Money</button>
+    </form>
+</body>
+</html>

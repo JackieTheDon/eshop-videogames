@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Store</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='dist/output.css') }}"
+    />
+  </head>
+
+  <body>
+    <h1>Friend List</h1>
+    <ul>
+        {% for friend in friends %}
+            <li>{{ friend[1] }}</li>
+        {% endfor %}
+    </ul>
+    {% if not friends %}
+        <p>You don't have any friends yet.</p>
+    {% endif %}
+    <a href="{{ url_for('choice_request') }}">Friend Requests</a>
+    <a href="{{ url_for('user_list') }}">Find Friends</a>
+</body>
+</html>

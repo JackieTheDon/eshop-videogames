@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='/dist/output.css') }}"
+    />
+  </head>
+
+  <body>
+    <h1>Edit Profile</h1>
+    
+    <form method="post" action="{{ url_for('edit_profile') }}">
+        <label for="new_nickname">New Nickname:</label>
+        <input type="text" id="new_nickname" name="new_nickname" value="{{ user[1] }}" required>
+
+        <label for="new_profile_picture">New Profile Picture URL:</label>
+        <input type="text" id="new_profile_picture" name="new_profile_picture" value="{{ user[4] }}" required>
+
+        <label for="new_password">New Password:</label>
+        <input type="password" id="new_password" name="new_password" required>
+
+        <input type="submit" value="Save Changes">
+    </form>
+  </body>
+</html>
