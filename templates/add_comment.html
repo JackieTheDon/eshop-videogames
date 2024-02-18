@@ -1,17 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Comment</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='dist/output.css') }}"
+    />
 </head>
-<body>
-    <h1>Add Comment</h1>
 
-    <form action="{{ url_for('add_comment', game_id=game_id) }}" method="POST">
-        <label for="content">Comment:</label><br>
-        <textarea id="content" name="content" rows="4" cols="50"></textarea><br><br>
-        <button type="submit">Submit Comment</button>
-    </form>
+<body class="bg-gray-800 text-white font-sans">
+
+    <div class="max-w-md mx-auto p-6">
+        <h1 class="text-3xl font-semibold text-pink-500 mb-6">Add Comment</h1>
+
+        <form action="{{ url_for('add_comment', game_id=game_id) }}" method="POST" class="flex flex-col space-y-4">
+            <label for="content" class="text-gray-300">Comment:</label>
+            <textarea id="content" name="content" rows="4"
+                class="border border-gray-500 bg-gray-700 text-gray-100 px-3 py-2 rounded-md focus:outline-none focus:border-pink-500"
+                required></textarea>
+            <button type="submit"
+                class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-md focus:outline-none focus:bg-pink-600">
+                Submit Comment
+            </button>
+        </form>
+    </div>
+
 </body>
+
 </html>

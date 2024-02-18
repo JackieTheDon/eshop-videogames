@@ -1,17 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wallet</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='dist/output.css') }}"
+    />
 </head>
-<body>
-    <h1>Wallet</h1>
-    <p>Your current balance: ${{ '{:.2f}'.format(current_money) }}</p>
-    <form action="{{ url_for('add_money') }}" method="POST">
-        <label for="amount">Enter amount to add:</label>
-        <input type="number" id="amount" name="amount" step="0.01" min="0.01" required>
-        <button type="submit">Add Money</button>
-    </form>
+
+<body class="bg-gray-800 text-white font-sans">
+
+    <div class="max-w-md mx-auto p-6">
+        <h1 class="text-3xl font-semibold text-pink-500 mb-6">Wallet</h1>
+        <p class="mb-4">Your current balance: ${{ '{:.2f}'.format(current_money) }}</p>
+
+        <form action="{{ url_for('add_money') }}" method="POST" class="flex flex-col space-y-4">
+            <label for="amount" class="text-gray-300">Enter amount to add:</label>
+            <input type="number" id="amount" name="amount" step="0.01" min="0.01" required
+                class="border border-gray-500 bg-gray-700 text-gray-100 px-3 py-2 rounded-md focus:outline-none focus:border-pink-500">
+            <button type="submit"
+                class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-md focus:outline-none focus:bg-pink-600">
+                Add Money
+            </button>
+        </form>
+    </div>
+
 </body>
+
 </html>

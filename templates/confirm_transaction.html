@@ -4,18 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Confirm Purchase</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='dist/output.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='dist/output.css') }}"
+    />
 </head>
-<body>
-    <h1>Confirm Purchase</h1>
-    <div class="game-details">
-        <h2>Game Information</h2>
-        <p><strong>Title:</strong> {{ details[1] }}</p>
-        <p><strong>Price:</strong> ${{ details[4] }}</p>
-        <form action="{{ url_for('confirm_transaction', game_id=details[0]) }}" method="post">
-            <input type="submit" value="Confirm Purchase">
-            <a href="{{ url_for('game_detail', game_id=details[0]) }}" class="cancel-button">Cancel</a>
-        </form>
+<body class="bg-gray-800 text-white font-sans">
+
+    <div class="max-w-md mx-auto p-6">
+        <h1 class="text-3xl font-semibold text-pink-500 mb-6">Confirm Purchase</h1>
+
+        <div class="bg-gray-700 p-6 rounded-md">
+            <h2 class="text-xl font-semibold mb-2">Game Information</h2>
+            <p><strong>Title:</strong> {{ details[1] }}</p>
+            <p><strong>Price:</strong> ${{ details[4] }}</p>
+
+            <form action="{{ url_for('confirm_transaction', game_id=details[0]) }}" method="post"
+                class="flex items-center space-x-4">
+                <button type="submit"
+                    class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-md focus:outline-none focus:bg-pink-600">
+                    Confirm Purchase
+                </button>
+                <a href="{{ url_for('game_detail', game_id=details[0]) }}"
+                    class="text-pink-500 hover:text-pink-600 focus:outline-none">Cancel</a>
+            </form>
+        </div>
     </div>
+
 </body>
 </html>

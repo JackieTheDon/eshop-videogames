@@ -4,25 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Friend Requests</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dist/output.css') }}">
 </head>
-<body>
-    <h1>Friend Requests</h1>
-    <ul>
-        {% for request in friend_requests %}
-            {% if request[1] != 'friends' %}
-                <li>
-                    {{ request[2] }}
-                    <form method="post">
+<body class="bg-gray-800 text-white">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-semibold mb-6">Friend Requests</h1>
+        <ul>
+            {% for request in friend_requests %}
+            <li class="mb-4">
+                <p>{{ request[3] }} wants to be your friend</p>
+                <div class="mt-2">
+                    <form method="post" class="inline">
                         <input type="hidden" name="accept_request" value="{{ request[0] }}">
-                        <input type="submit" value="Accept">
+                        <button type="submit" class="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-md mr-2">Accept</button>
                     </form>
-                    <form method="post">
+                    <form method="post" class="inline">
                         <input type="hidden" name="refuse_request" value="{{ request[0] }}">
-                        <input type="submit" value="Refuse">
+                        <button type="submit" class="bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-md">Refuse</button>
                     </form>
-                </li>
-            {% endif %}
-        {% endfor %}
-    </ul>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
 </body>
 </html>

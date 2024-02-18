@@ -1,26 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Game Store</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friend List</title>
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='dist/output.css') }}"
     />
-  </head>
+<body class="bg-gray-800 text-white font-sans">
 
-  <body>
-    <h1>Friend List</h1>
-    <ul>
-        {% for friend in friends %}
-            <li>{{ friend[1] }}</li>
-        {% endfor %}
-    </ul>
-    {% if not friends %}
-        <p>You don't have any friends yet.</p>
-    {% endif %}
-    <a href="{{ url_for('choice_request') }}">Friend Requests</a>
-    <a href="{{ url_for('user_list') }}">Find Friends</a>
+    <div class="max-w-md mx-auto p-6">
+        <h1 class="text-3xl font-semibold text-pink-500 mb-6">Friend List</h1>
+
+        <ul>
+            {% for friend in friends %}
+                <li class="mb-2">{{ friend[1] }}</li>
+            {% endfor %}
+        </ul>
+
+        {% if not friends %}
+            <p class="mb-6">You don't have any friends yet.</p>
+        {% endif %}
+
+        <div class="flex justify-between">
+            <a href="{{ url_for('choice_request') }}"
+                class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-md focus:outline-none focus:bg-pink-600">
+                Friend Requests
+            </a>
+            <a href="{{ url_for('user_list') }}"
+                class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-md focus:outline-none focus:bg-pink-600">
+                Find Friends
+            </a>
+        </div>
+    </div>
+
 </body>
 </html>

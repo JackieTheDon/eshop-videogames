@@ -8,18 +8,17 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='dist/output.css') }}">
 </head>
 
-<body class="bg-gray-800">
+<body class="bg-gray-900 text-white">
 
-    <nav class="bg-gray-700 p-4">
+    <nav class="bg-gray-800 p-4">
         <div class="container mx-auto flex justify-between items-center">
-            <a class="text-white text-2xl font-bold" href="#">Gold Vault</a>
+            <a class="text-white text-2xl font-bold" href="/">Gold Vault</a>
             <ul class="flex space-x-4">
-                <li><a class="text-white" href="home">Home</a></li>
-                <li><a class="text-white" href="#">Library</a></li>
-                <li><a class="text-white" href="#">About</a></li>
-                <li><a class="text-white" href="#">Friends</a></li>
                 {% if session.get('logged_in') %}
-                    <li><a class="text-white" href="user_profile">Profile</a></li>
+                    <li><a class="text-white" href="friend_list">Friends</a></li>
+                    <li><a class="text-white" href="library">Library</a></li>
+                    <li><a class="text-white" href="wallet">Wallet</a></li>
+                    <li><a class="text-white" href="profile">Profile</a></li>
                     <li><a class="text-white" href="logout">Log out</a></li>
                 {% else %}
                     <li><a class="text-white" href="login">Login</a></li>
@@ -28,23 +27,23 @@
         </div>
     </nav>
 
-    <form class="flex items-center p-4" action="{{ url_for('search') }}" method="GET">
-        <input type="text" name="query" placeholder="Search..."> 
-        <button type="submit" class="bg-green-500 text-white rounded-r-md">Search</button>
+    <form class="container mx-auto mt-4 p-4" action="{{ url_for('search') }}" method="GET">
+        <div class="flex items-center">
+            <input type="text" name="query" placeholder="Search..." class="py-2 px-4 bg-gray-800 text-white rounded-l-md focus:outline-none focus:bg-gray-700">
+            <button type="submit" class="bg-pink-500 text-white py-2 px-4 rounded-r-md hover:bg-pink-600 focus:outline-none">Search</button>
+        </div>
     </form>
 
-
-
     <div class="container mx-auto mt-6 p-6">
-        <h2 class="text-2xl font-semibold text-white mb-4">Search Results</h2>
-    
+        <h2 class="text-2xl font-semibold text-white mb-4">Featured Games:</h2>
+
         <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for result in results %}
             <a href="{{ url_for('game_detail', game_id=result[0]) }}" class="block">
-                <li class="bg-gray-700 text-white p-6 rounded-md">
-                    <h3 class="text-xl font-semibold mb-2">{{ result[1] }}</h3> <!-- Game Name -->
-                    <p class="text-gray-300 mb-2"><strong>Rating:</strong> {{ result[2] }}/5</p> <!-- Rating -->
-                    <p class="text-gray-300"><strong>Price:</strong> ${{ result[4] }}</p> <!-- Price -->
+                <li class="bg-gray-800 text-white p-6 rounded-md hover:bg-gray-700 transition duration-300 ease-in-out transform hover:-translate-y-1">
+                    <h3 class="text-xl font-semibold mb-2">{{ result[1] }}</h3>
+                    <p class="text-gray-300 mb-2"><strong>Rating:</strong> {{ result[2] }}/5</p>
+                    <p class="text-gray-300"><strong>Price:</strong> ${{ '{:.2f}'.format(result[4]) }}</p>
                 </li>
             </a>
             {% endfor %}
@@ -54,4 +53,3 @@
 </body>
 
 </html>
-

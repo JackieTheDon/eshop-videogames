@@ -98,7 +98,6 @@ def get_user_money(user_id):
     connection.close()
     return money
 
-    
 @app.route('/wallet', methods=['GET', 'POST'])
 def add_money():
     if not session.get('logged_in'):
@@ -148,13 +147,26 @@ def get_game_comments(game_id):
 def update_user_profile(user_id, nickname, profile_picture, password):
     connection = sqlite3.connect('your_database.db')
     cursor = connection.cursor()
-    cursor.execute("""
-        UPDATE users 
-        SET nickname = ?, profile_picture = ?, password = ? 
-        WHERE id = ?
-    """, (nickname, profile_picture, password, user_id))
+
+    query = "UPDATE users SET"
+    params = []
+
+    if nickname:
+        query += " nickname = ?,"
+        params.append(nickname)
+    if profile_picture:
+        query += " profile_picture = ?,"
+        params.append(profile_picture)
+    if password:
+        query += " password = ?,"
+        params.append(password)
+
+    query = query.rstrip(',') + " WHERE id = ?"
+    params.append(user_id)
+    cursor.execute(query, tuple(params))
     connection.commit()
     connection.close()
+
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 def edit_profile():
@@ -262,12 +274,32 @@ def friend_list():
     user_id = session.get('id')
     connection = sqlite3.connect('your_database.db')
     cursor = connection.cursor()
-    cursor.execute('''SELECT users.id, users.nickname FROM users
-                      INNER JOIN friendships ON users.id = friendships.friend_id
-                      WHERE friendships.user_id = ? AND friendships.status = 'friends' ''', (user_id,))
+    
+    # Select friends of the current user
+    cursor.execute('''
+        SELECT u.id, u.nickname 
+        FROM users u
+        INNER JOIN friendships f ON u.id = f.friend_id
+        WHERE f.user_id = ? AND f.status = 'friends'
+    ''', (user_id,))
+    
     friends = cursor.fetchall()
+    
+    # Select friends of the other user
+    cursor.execute('''
+        SELECT u.id, u.nickname 
+        FROM users u
+        INNER JOIN friendships f ON u.id = f.user_id
+        WHERE f.friend_id = ? AND f.status = 'friends'
+    ''', (user_id,))
+    
+    other_friends = cursor.fetchall()
+    
     connection.close()
-    return render_template('friend_list.html', friends=friends)
+    
+    all_friends = friends + other_friends
+    
+    return render_template('friend_list.html', friends=all_friends)
 
 @app.route('/user_list')
 def user_list():
@@ -276,14 +308,35 @@ def user_list():
 
     connection = sqlite3.connect('your_database.db')
     cursor = connection.cursor()
-    cursor.execute("SELECT id, nickname FROM users WHERE id NOT IN (SELECT friend_id FROM friendships WHERE user_id = ?) AND id != ?", (session.get('id'), session.get('id')))
+    
+    current_user_id = session.get('id')
+    
+    # Select users who are not friends and for whom there is no pending request from or to the current user
+    cursor.execute("""
+        SELECT id, nickname 
+        FROM users 
+        WHERE id != ? 
+        AND id NOT IN (
+            SELECT friend_id FROM friendships WHERE user_id = ? AND status = 'friends'
+            UNION
+            SELECT user_id FROM friendships WHERE friend_id = ? AND status = 'pending'
+        ) 
+        AND id NOT IN (
+            SELECT user_id FROM friendships WHERE friend_id = ? AND status = 'friends'
+            UNION
+            SELECT friend_id FROM friendships WHERE user_id = ? AND status = 'pending'
+        )
+    """, (current_user_id, current_user_id, current_user_id, current_user_id, current_user_id))
+    
     users = cursor.fetchall()
     
-    cursor.execute("SELECT friend_id FROM friendships WHERE user_id = ?", (session.get('id'),))
+    cursor.execute("SELECT friend_id FROM friendships WHERE user_id = ? AND status = 'pending'", (current_user_id,))
     pending_requests = [row[0] for row in cursor.fetchall()]
     
     connection.close()
     return render_template('user_list.html', users=users, pending_requests=pending_requests)
+
+
 
 @app.route('/friend_request', methods=['POST'])
 def friend_request():
@@ -311,13 +364,13 @@ def choice_request():
         return redirect(url_for('login'))
 
     if request.method == 'POST':
+        current_user_id = session.get('id')
+
         if 'accept_request' in request.form:
             request_id = request.form['accept_request']
-            print(request_id)
             action = 'accept'
         elif 'refuse_request' in request.form:
             request_id = request.form['refuse_request']
-            print(request_id)
             action = 'refuse'
 
         if action:
@@ -335,19 +388,20 @@ def choice_request():
             return redirect(url_for('friend_list'))
 
     user_id = session.get('id')
+    current_user_nickname = get_user_details(user_id)[0]
 
     connection = sqlite3.connect('your_database.db')
     cursor = connection.cursor()
 
-    cursor.execute('''SELECT friendships.id, friendships.status, users.nickname FROM friendships
-                    INNER JOIN users ON friendships.friend_id = users.id
-                    WHERE friendships.user_id = ?''', (user_id,))
-
+    cursor.execute('''SELECT friendships.id, friendships.status, users.id, users.nickname 
+                      FROM friendships 
+                      INNER JOIN users ON friendships.user_id = users.id 
+                      WHERE (friendships.friend_id = ? AND friendships.status = 'pending')''', (user_id,))
     friend_requests = cursor.fetchall()
 
     connection.close()
 
-    return render_template('requests.html', friend_requests=friend_requests)
+    return render_template('requests.html', friend_requests=friend_requests, current_user_nickname=current_user_nickname)
 
 def get_users_not_friends(user_id):
     connection = sqlite3.connect('your_database.db')
@@ -365,12 +419,16 @@ def home():
 @app.route('/search', methods=['GET'])
 def search():
     query = request.args.get('query', '')
+    if not query:
+        return redirect(url_for('home'))
+    
     connection = sqlite3.connect('your_database.db')
     cursor = connection.cursor()
     cursor.execute('SELECT * FROM games WHERE game_name LIKE ?', ('%' + query + '%',))
     search_results = cursor.fetchall()
     connection.close()
     return render_template('search_results.html', query=query, results=search_results)
+
 
 def update_comment_content(comment_id, new_content):
     connection = sqlite3.connect('your_database.db')

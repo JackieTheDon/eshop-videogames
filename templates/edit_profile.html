@@ -1,26 +1,31 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='/dist/output.css') }}"
-    />
-  </head>
+<html class="bg-gray-800 text-white">
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='/dist/output.css') }}">
+</head>
 
-  <body>
-    <h1>Edit Profile</h1>
+<body class="container mx-auto py-8">
+
+    <h1 class="text-3xl font-semibold mb-6">Edit Profile</h1>
     
-    <form method="post" action="{{ url_for('edit_profile') }}">
-        <label for="new_nickname">New Nickname:</label>
-        <input type="text" id="new_nickname" name="new_nickname" value="{{ user[1] }}" required>
+    <form method="post" action="{{ url_for('edit_profile') }}" class="max-w-md mx-auto">
+        <div class="mb-4">
+            <label for="new_nickname" class="block mb-2">New Nickname:</label>
+            <input type="text" id="new_nickname" name="new_nickname" value="{{ user[1] }}" required class="w-full py-2 px-3 bg-gray-700 text-white rounded-md focus:outline-none focus:bg-gray-600">
+        </div>
 
-        <label for="new_profile_picture">New Profile Picture URL:</label>
-        <input type="text" id="new_profile_picture" name="new_profile_picture" value="{{ user[4] }}" required>
+        <div class="mb-4">
+            <label for="new_profile_picture" class="block mb-2">New Profile Picture URL:</label>
+            <input type="text" id="new_profile_picture" name="new_profile_picture" value="{{ user[4] }}" required class="w-full py-2 px-3 bg-gray-700 text-white rounded-md focus:outline-none focus:bg-gray-600">
+        </div>
 
-        <label for="new_password">New Password:</label>
-        <input type="password" id="new_password" name="new_password" required>
+        <div class="mb-4">
+            <label for="new_password" class="block mb-2">New Password:</label>
+            <input type="password" id="new_password" name="new_password" class="w-full py-2 px-3 bg-gray-700 text-white rounded-md focus:outline-none focus:bg-gray-600">
+        </div>
 
-        <input type="submit" value="Save Changes">
+        <button type="submit" class="bg-pink-600 hover:bg-pink-700 text-white py-2 px-4 rounded-md transition duration-300 ease-in-out focus:outline-none">Save Changes</button>
     </form>
-  </body>
+
+</body>
 </html>
