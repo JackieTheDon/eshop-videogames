@@ -4,11 +4,10 @@ import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-
 app = Flask(__name__, static_url_path='/static')
 app.secret_key = b'\xfdOe\x0c\xc1\x12^o\xc5\x87\x07\xa8u\xc4-\xdcY\x1f+\xc9A\xe8\x92y'
 
-connection = sqlite3.connect('your_database.db')
+connection = sqlite3.connect('goldvault.db')
 
 cursor = connection.cursor()
 
@@ -73,14 +72,14 @@ def check_password(input_password, hashed_password):
     return check_password_hash(hashed_password, input_password)
 
 def create_user(nickname, email, password):
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     cursor.execute("INSERT INTO users (nickname, email, password, profile_picture, money) VALUES (?, ?, ?, ?, ?)", (nickname, email, password, "static\pictures\default.png", 0.00))
     connection.commit()
     connection.close()
     
 def insert_user_money(user_id, money):
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     cursor.execute("""
         UPDATE users 
@@ -91,7 +90,7 @@ def insert_user_money(user_id, money):
     connection.close()
     
 def get_user_money(user_id):
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     cursor.execute("SELECT money FROM users WHERE id = ?", (user_id,))
     money = cursor.fetchone()[0]
@@ -115,7 +114,7 @@ def add_money():
     return render_template('wallet.html', current_money=current_money)
 
 def insert_user_comment(user_id, game_id, content):
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     cursor.execute("INSERT INTO comments (game_id, user_id, content, timestamp) VALUES (?, ?, ?, ?)", (game_id, user_id, content, timestamp))
@@ -137,7 +136,7 @@ def add_comment():
         return render_template('add_comment.html')
 
 def get_game_comments(game_id):
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     cursor.execute('SELECT * FROM comments WHERE game_id = ?', (game_id,))
     comments = cursor.fetchall()
@@ -145,7 +144,7 @@ def get_game_comments(game_id):
     return comments
     
 def update_user_profile(user_id, nickname, profile_picture, password):
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
 
     query = "UPDATE users SET"
@@ -189,7 +188,7 @@ def edit_profile():
     return render_template('edit_profile.html', user=user) 
     
 def authenticate_user(email, password):
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
@@ -200,7 +199,7 @@ def authenticate_user(email, password):
         return None
     
 def is_duplicate(nickname, email):
-    conn = sqlite3.connect('your_database.db')
+    conn = sqlite3.connect('goldvault.db')
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users WHERE nickname = ? OR email = ?', (nickname, email))
     result = cursor.fetchone()
@@ -240,7 +239,7 @@ def login():
     return render_template('login.html')
 
 def get_game_details():
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     cursor.execute('SELECT * FROM games')
     games = cursor.fetchall()
@@ -248,7 +247,7 @@ def get_game_details():
     return games
 
 def get_user_details(user_id):
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
     user = cursor.fetchone()
@@ -272,7 +271,7 @@ def friend_list():
         return redirect(url_for('login'))
     
     user_id = session.get('id')
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     
     # Select friends of the current user
@@ -306,7 +305,7 @@ def user_list():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     
     current_user_id = session.get('id')
@@ -348,7 +347,7 @@ def friend_request():
     if friend_id is None:
         return "Friend ID is required.", 400
 
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     
     cursor.execute("INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, ?)", 
@@ -374,7 +373,7 @@ def choice_request():
             action = 'refuse'
 
         if action:
-            connection = sqlite3.connect('your_database.db')
+            connection = sqlite3.connect('goldvault.db')
             cursor = connection.cursor()
 
             if action == 'accept':
@@ -390,7 +389,7 @@ def choice_request():
     user_id = session.get('id')
     current_user_nickname = get_user_details(user_id)[0]
 
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
 
     cursor.execute('''SELECT friendships.id, friendships.status, users.id, users.nickname 
@@ -404,7 +403,7 @@ def choice_request():
     return render_template('requests.html', friend_requests=friend_requests, current_user_nickname=current_user_nickname)
 
 def get_users_not_friends(user_id):
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     cursor.execute("SELECT id, nickname FROM users WHERE id != ? AND id NOT IN (SELECT friend_id FROM friendships WHERE user_id = ?)", (user_id, user_id))
     users = cursor.fetchall()
@@ -422,7 +421,7 @@ def search():
     if not query:
         return redirect(url_for('home'))
     
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     cursor.execute('SELECT * FROM games WHERE game_name LIKE ?', ('%' + query + '%',))
     search_results = cursor.fetchall()
@@ -431,14 +430,14 @@ def search():
 
 
 def update_comment_content(comment_id, new_content):
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     cursor.execute("UPDATE comments SET content = ? WHERE id = ?", (new_content, comment_id))
     connection.commit()
     connection.close()
 
 def delete_user_comment(comment_id):
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     cursor.execute("DELETE FROM comments WHERE id = ?", (comment_id,))
     connection.commit()
@@ -446,7 +445,7 @@ def delete_user_comment(comment_id):
 
 @app.route('/game/<game_id>', methods=['GET', 'POST'])
 def game_detail(game_id):
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     cursor.execute('SELECT * FROM games WHERE id = ?', (game_id,))
     game_det = cursor.fetchone()
@@ -474,7 +473,7 @@ def game_detail(game_id):
     return render_template('game_detail.html', game_det=game_det, comments=comments)
 
 def fetch_game_details(game_id):
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM games WHERE id = ?", (game_id,))
     details = cursor.fetchone()
@@ -482,14 +481,14 @@ def fetch_game_details(game_id):
     return details
 
 def update_user_balance(user_id, new_balance):
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     cursor.execute("UPDATE users SET money = ? WHERE id = ?", (new_balance, user_id))
     connection.commit()
     connection.close()
 
 def record_purchase(user_id, game_id, price_paid):
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     cursor.execute("INSERT INTO transactions (user_id, game_id, price_paid) VALUES (?, ?, ?)", (user_id, game_id, price_paid))
     connection.commit()
@@ -521,7 +520,7 @@ def confirm_transaction(game_id):
 
 
 def fetch_purchased_games(user_id):
-    connection = sqlite3.connect('your_database.db')
+    connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     cursor.execute('''
         SELECT games.game_name

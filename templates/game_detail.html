@@ -20,7 +20,7 @@
         {% if session.get('logged_in') %}
         <a href="{{ url_for('confirm_transaction', game_id=game_det[0]) }}" class="text-white bg-pink-500 hover:bg-pink-600 px-4 py-2 rounded-md mr-2">Buy</a>
         {% else %}
-        <a href="login" class="text-white bg-pink-500 hover:bg-pink-600 px-4 py-2 rounded-md mr-2">Buy</a>
+        <a href="{{ url_for('login') }}" class="text-white bg-pink-500 hover:bg-pink-600 px-4 py-2 rounded-md mr-2">Buy</a>
         {% endif %}
     </div>
 
@@ -30,7 +30,7 @@
             {% if comments %}
             <ul>
                 {% for comment in comments %}
-                <li class="text-gray-300">
+                <li class="text-gray-300 mb-4">
                     <strong>{{ comment[2] }}:</strong>
                     {{ comment[1] }}
                     <span class="timestamp">{{ comment[3] }}</span>
@@ -54,7 +54,7 @@
             {% if session.get('logged_in') %}
             <a href="{{ url_for('add_comment') }}" class="text-white bg-pink-500 hover:bg-pink-600 px-4 py-2 rounded-md mt-4">Add comment</a>
             {% else %}
-            <a href="login" class="text-white bg-pink-500 hover:bg-pink-600 px-4 py-2 rounded-md m-4">Add comment</a>
+            <a href="{{ url_for('login') }}" class="text-white bg-pink-500 hover:bg-pink-600 px-4 py-2 rounded-md m-4">Add comment</a>
             {% endif %}
         </div>
     </div>
