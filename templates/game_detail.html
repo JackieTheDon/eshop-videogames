@@ -52,10 +52,12 @@
             <p class="text-white mb-4">No comments available for this game.</p>
             {% endif %}
             {% if session.get('logged_in') %}
-            <a href="{{ url_for('add_comment') }}" class="text-white bg-pink-500 hover:bg-pink-600 px-4 py-2 rounded-md mt-4">Add comment</a>
-            {% else %}
-            <a href="{{ url_for('login') }}" class="text-white bg-pink-500 hover:bg-pink-600 px-4 py-2 rounded-md m-4">Add comment</a>
+            {% if not has_user_commented(session['id'], game_det.id) %}
+                <a href="{{ url_for('add_comment') }}" class="text-white bg-pink-500 hover:bg-pink-600 px-4 py-2 rounded-md mt-4">Add comment</a>
             {% endif %}
+        {% else %}
+            <a href="{{ url_for('login') }}" class="text-white bg-pink-500 hover:bg-pink-600 px-4 py-2 rounded-md m-4">Add comment</a>
+        {% endif %}
         </div>
     </div>
 </div>

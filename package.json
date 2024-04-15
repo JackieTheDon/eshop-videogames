@@ -14,8 +14,5 @@
   },
   "author": "",
   "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "flask": "^0.2.10"
-  }
+  "description": ""
 }

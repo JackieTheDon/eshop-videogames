@@ -8,6 +8,7 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='dist/output.css') }}"
     />
+</head>
 <body class="bg-gray-800 text-white font-sans">
 
     <div class="max-w-md mx-auto p-6">
@@ -15,7 +16,11 @@
 
         <ul>
             {% for friend in friends %}
-                <li class="mb-2">{{ friend[1] }}</li>
+                <li class="mb-2">{{ friend[1] }}
+                    <form action="{{ url_for('unfriend', friend_id=friend[0]) }}" method="post" class="inline">
+                        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md focus:outline-none focus:bg-red-600">Unfriend</button>
+                    </form>
+                </li>
             {% endfor %}
         </ul>
 

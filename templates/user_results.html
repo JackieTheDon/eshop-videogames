@@ -3,25 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User list</title>
+    <title>User Search Results</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='dist/output.css') }}">
 </head>
 <body class="bg-gray-800 text-white">
 
-    <form class="container mx-auto mt-4 p-4" action="{{ url_for('search_user') }}" method="GET">
-        <div class="flex items-center">
-            <input type="text" name="query" placeholder="Search..." class="py-2 px-4 bg-gray-800 text-white rounded-l-md focus:outline-none focus:bg-gray-700">
-            <button type="submit" class="bg-pink-500 text-white py-2 px-4 rounded-r-md hover:bg-pink-600 focus:outline-none">Search</button>
-        </div>
-    </form>
-
     <div class="container mx-auto p-6">
-        <h1 class="text-3xl font-semibold mb-6">User List</h1>
+        <h1>User Search Results for "{{ query }}"</h1>
         <ul>
-            {% for user in users %}
+            {% for user in results %}
                 <li class="mb-4">
-                    {{ user[1] }} 
-                    {% if user[0] not in pending_requests %}
+                    {{ user[1] }}
+                    {% if user[0] not in friend_ids %}
                         <form action="{{ url_for('friend_request') }}" method="post" class="inline">
                             <input type="hidden" name="friend_id" value="{{ user[0] }}">
                             <button type="submit" class="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-lg">Send Friend Request</button>

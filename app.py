@@ -135,6 +135,19 @@ def add_comment():
     else:
         return render_template('add_comment.html')
 
+def has_user_commented(user_id, game_id):
+    user_id = session.get('id')
+    game_id = session.get('game_id')
+    if user_id is None or game_id is None:
+        return False
+    
+    connection = sqlite3.connect('goldvault.db')
+    cursor = connection.cursor()
+    cursor.execute("SELECT COUNT(*) FROM comments WHERE user_id = ? AND game_id = ?", (user_id, game_id))
+    count = cursor.fetchone()[0]
+    connection.close()
+    return count > 0
+
 def get_game_comments(game_id):
     connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
@@ -165,7 +178,6 @@ def update_user_profile(user_id, nickname, profile_picture, password):
     cursor.execute(query, tuple(params))
     connection.commit()
     connection.close()
-
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 def edit_profile():
@@ -274,7 +286,6 @@ def friend_list():
     connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
     
-    # Select friends of the current user
     cursor.execute('''
         SELECT u.id, u.nickname 
         FROM users u
@@ -284,7 +295,6 @@ def friend_list():
     
     friends = cursor.fetchall()
     
-    # Select friends of the other user
     cursor.execute('''
         SELECT u.id, u.nickname 
         FROM users u
@@ -300,6 +310,57 @@ def friend_list():
     
     return render_template('friend_list.html', friends=all_friends)
 
+@app.route('/search_user', methods=['GET'])
+def search_user():
+    query = request.args.get('query', '')
+    if not query:
+        return redirect(url_for('user_list'))
+    
+    current_user_id = session.get('id')
+    
+    connection = sqlite3.connect('goldvault.db')
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT * FROM users 
+        WHERE nickname LIKE ? 
+        AND id != ? 
+        AND id NOT IN (
+            SELECT friend_id FROM friendships WHERE user_id = ? AND status = 'friends'
+            UNION
+            SELECT user_id FROM friendships WHERE friend_id = ? AND status = 'pending'
+            UNION
+            SELECT friend_id FROM friendships WHERE user_id = ? AND status = 'pending'
+            UNION
+            SELECT user_id FROM friendships WHERE friend_id = ? AND status = 'friends'
+        )
+    """, ('%' + query + '%', current_user_id, current_user_id, current_user_id, current_user_id, current_user_id))
+    
+    user_results = cursor.fetchall()
+    
+    connection.close()
+    
+    return render_template('user_results.html', query=query, results=user_results)
+
+@app.route('/unfriend/<int:friend_id>', methods=['POST'])
+def unfriend(friend_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    
+    current_user_id = session.get('id')
+    
+    connection = sqlite3.connect('goldvault.db')
+    cursor = connection.cursor()
+    
+    cursor.execute("""
+        DELETE FROM friendships 
+        WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)
+    """, (current_user_id, friend_id, friend_id, current_user_id))
+    
+    connection.commit()
+    connection.close()
+    
+    return redirect(url_for('friend_list'))
+
 @app.route('/user_list')
 def user_list():
     if not session.get('logged_in'):
@@ -310,7 +371,6 @@ def user_list():
     
     current_user_id = session.get('id')
     
-    # Select users who are not friends and for whom there is no pending request from or to the current user
     cursor.execute("""
         SELECT id, nickname 
         FROM users 
@@ -334,8 +394,6 @@ def user_list():
     
     connection.close()
     return render_template('user_list.html', users=users, pending_requests=pending_requests)
-
-
 
 @app.route('/friend_request', methods=['POST'])
 def friend_request():
@@ -428,7 +486,6 @@ def search():
     connection.close()
     return render_template('search_results.html', query=query, results=search_results)
 
-
 def update_comment_content(comment_id, new_content):
     connection = sqlite3.connect('goldvault.db')
     cursor = connection.cursor()
@@ -467,10 +524,17 @@ def game_detail(game_id):
         elif 'delete_comment' in request.form:
             comment_id = request.form['delete_comment']
             delete_user_comment(comment_id)
+        elif 'content' in request.form:
+            if not has_user_commented(session['id'], game_id):
+                content = request.form['content']
+                user_id = session.get('id')
+                game_id = session.get('game_id')
+                insert_user_comment(user_id, game_id, content)
 
         return redirect(url_for('game_detail', game_id=game_id))
 
-    return render_template('game_detail.html', game_det=game_det, comments=comments)
+    return render_template('game_detail.html', game_det=game_det, comments=comments, has_user_commented=has_user_commented)
+
 
 def fetch_game_details(game_id):
     connection = sqlite3.connect('goldvault.db')
@@ -517,7 +581,6 @@ def confirm_transaction(game_id):
         return redirect(url_for('library'))
     
     return render_template('confirm_transaction.html', details=game_details)
-
 
 def fetch_purchased_games(user_id):
     connection = sqlite3.connect('goldvault.db')
